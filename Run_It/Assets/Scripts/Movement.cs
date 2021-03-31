@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.MemoryProfiler;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
@@ -26,10 +25,15 @@ public class Movement : MonoBehaviour
     private Vector3 camForward;
     private Vector3 camRight;
 
+    // Animator variables
+    public Animator playerAnimatorController;
+
+
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<CharacterController>();
+        playerAnimatorController = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -40,6 +44,8 @@ public class Movement : MonoBehaviour
 
         playerInput = new Vector3(_horizontalMove, 0, _verticalMove);
         playerInput = Vector3.ClampMagnitude(playerInput, 1);
+
+        playerAnimatorController.SetFloat("PlayerWalkVelocity", playerInput.magnitude * _playerSpeed);
 
         // Checking de cam direction
         CamDirection();
@@ -78,7 +84,9 @@ public class Movement : MonoBehaviour
         {
             _fallVelocity -= _gravity * Time.deltaTime;
             movePlayer.y = _fallVelocity;
+            playerAnimatorController.SetFloat("PlayerVerticalVelocity", player.velocity.y);
         }
+        playerAnimatorController.SetBool("IsGrounded", player.isGrounded);
     }
 
     private void PlayerSkills()
@@ -87,8 +95,13 @@ public class Movement : MonoBehaviour
         {
             _fallVelocity = _jumpForce;
             movePlayer.y = _fallVelocity;
+            playerAnimatorController.SetTrigger("PlayerJump");
         }
     }
 
+    private void OnAnimatorMove()
+    {
+        
+    }
 
 }
